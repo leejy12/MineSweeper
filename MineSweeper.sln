@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MineSweeper", "MineSweeper\snake-win32.vcxproj", "{A1761AE5-150D-48E5-8EF3-5D2A1106424C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MineSweeper", "MineSweeper\MineSweeper.vcxproj", "{A1761AE5-150D-48E5-8EF3-5D2A1106424C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {1B2266E8-E2BB-4517-978A-94A1FC2BB3C5}
+		SolutionGuid = {BCA91BBF-85A1-474F-934F-0F8D01CC0B6F}
 	EndGlobalSection
 EndGlobal

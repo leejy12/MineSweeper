@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{a1761ae5-150d-48e5-8ef3-5d2a1106424c}</ProjectGuid>
-    <RootNamespace>snakewin32</RootNamespace>
+    <RootNamespace>MineSweeper</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>MineSweeper</ProjectName>
   </PropertyGroup>
