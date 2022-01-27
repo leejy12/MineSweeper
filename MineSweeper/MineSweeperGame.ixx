@@ -6,6 +6,8 @@ module;
 #include <gdiplus.h>
 #include <string>
 
+#include "resource.h"
+
 export module MineSweeperGame;
 
 import Helpers;
@@ -15,6 +17,8 @@ constexpr int IDT_GAME_TIMER = 12345;
 constexpr int BLOCK_SIZE = 40;
 constexpr int MARGIN = 100;
 constexpr int OFFSET = 1;
+
+INT_PTR CALLBACK About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 
 export class MineSweeperGame
 {
@@ -160,9 +164,18 @@ public:
         _wc.style = CS_VREDRAW | CS_HREDRAW;
         _wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
         _wc.lpszClassName = L"MINESWEEPER_GAME_WINDOW_CLASS";
+        _wc.lpszMenuName = MAKEINTRESOURCEW(IDR_MENU1);
         _wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
 
         RegisterClassExW(&_wc);
+
+        RECT rc = {
+            .left = 0,
+            .top = 0,
+            .right = 2 * MARGIN + BLOCK_SIZE * (width),
+            .bottom = 2 * MARGIN + BLOCK_SIZE * (height),
+        };
+        AdjustWindowRect(&rc, WS_CAPTION, TRUE);
 
         _hWnd = CreateWindowExW(0,
                                 _wc.lpszClassName,
@@ -170,8 +183,8 @@ public:
                                 WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX,
                                 CW_USEDEFAULT,
                                 CW_USEDEFAULT,
-                                2 * MARGIN + BLOCK_SIZE * (width),
-                                2 * MARGIN + BLOCK_SIZE * (height),
+                                rc.right - rc.left,
+                                rc.bottom - rc.top,
                                 nullptr,
                                 nullptr,
                                 _wc.hInstance,
@@ -221,6 +234,28 @@ public:
 
         switch (msg)
         {
+        case WM_COMMAND:
+        {
+            int wmId = LOWORD(wParam);
+            switch (wmId)
+            {
+            case ID_GAME_EXIT:
+                DestroyWindow(hWnd);
+                break;
+
+            case ID_HELP_ABOUT:
+            {
+                auto ret = DialogBoxW(pGame->_wc.hInstance, MAKEINTRESOURCEW(IDD_GAMEABOUTBOX), hWnd, About);
+                if (ret == -1)
+                    DisplayError(L"DialogBoxW");
+                break;
+            }
+
+            default:
+                return DefWindowProcW(hWnd, msg, wParam, lParam);
+            }
+        }
+
         case WM_DESTROY:
         {
             Gdiplus::GdiplusShutdown(pGame->_gdiplusToken);
@@ -261,7 +296,7 @@ public:
                 if (cell.hasMine)
                 {
                     MessageBoxW(hWnd, L"BOOM!", L"BOOM!", MB_OK | MB_ICONEXCLAMATION);
-                    pGame->_mineField.Reset();
+                    pGame->_mineField.Reset(pGame->_mineField.GetWidth(), pGame->_mineField.GetHeight());
                     pGame->_gameStarted = false;
                     pGame->_ForceRedraw(hWnd);
                     return 0;
@@ -298,3 +333,22 @@ public:
         return DefWindowProcW(hWnd, msg, wParam, lParam);
     }
 };
+
+INT_PTR CALLBACK About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    switch(msg)
+    {
+    case WM_INITDIALOG:
+        return TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK)
+        {
+            EndDialog(hDlg, LOWORD(wParam));
+            return TRUE;
+        }
+        break;
+    }
+
+    return FALSE;
+}

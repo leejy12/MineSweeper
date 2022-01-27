@@ -142,18 +142,12 @@ public:
         return 1;
     }
 
-    void Reset()
+    void Reset(int newWidth, int newHeight)
     {
-        for (int x = 0; x < _fieldWidth; x++)
-        {
-            for (int y = 0; y < _fieldHeight; y++)
-            {
-                _cells[x][y].explored = false;
-                _cells[x][y].hasMine = false;
-                _cells[x][y].hasFlag = false;
-                _cells[x][y].adjacentMines = 0;
-            }
-        }
+        _cells.clear();
+        _cells.resize(newWidth);
+        for (auto& column : _cells)
+            column.resize(newHeight);
     }
 
     CellInfo GetCellInfo(int x, int y) const
