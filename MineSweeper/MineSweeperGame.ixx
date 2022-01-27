@@ -101,7 +101,7 @@ private:
                                            MARGIN + OFFSET + y * BLOCK_SIZE,
                                            BLOCK_SIZE - OFFSET,
                                            BLOCK_SIZE - OFFSET);
-                    if (cell.flagged)
+                    if (cell.hasFlag)
                     {
                         Gdiplus::PointF trianglePoints[3] = {
                             Gdiplus::PointF(MARGIN + (x + 0.4f) * BLOCK_SIZE, MARGIN + (y + 0.2f) * BLOCK_SIZE),
@@ -141,6 +141,14 @@ private:
             }
             _shouldRedrawGrid = false;
         }
+    }
+
+    void _ForceRedraw(HWND hWnd)
+    {
+        RECT rc;
+        GetClientRect(hWnd, &rc);
+        InvalidateRect(hWnd, &rc, FALSE);
+        UpdateWindow(hWnd);
     }
 
 public:
@@ -246,23 +254,23 @@ public:
             {
                 const auto cell = pGame->_mineField.GetCellInfo(x, y);
 
-                if (cell.flagged)
+                if (cell.hasFlag)
                 {
                     return 0;
                 }
                 if (cell.hasMine)
                 {
                     MessageBoxW(hWnd, L"BOOM!", L"BOOM!", MB_OK | MB_ICONEXCLAMATION);
+                    pGame->_mineField.Reset();
+                    pGame->_gameStarted = false;
+                    pGame->_ForceRedraw(hWnd);
                     return 0;
                 }
             }
 
             if (pGame->_mineField.StepOn(x, y) == 1)
             {
-                RECT rc;
-                GetClientRect(hWnd, &rc);
-                InvalidateRect(hWnd, &rc, FALSE);
-                UpdateWindow(hWnd);
+                pGame->_ForceRedraw(hWnd);
                 return 0;
             }
         }
@@ -276,11 +284,7 @@ public:
                 return 0;
 
             pGame->_mineField.ToggleFlag(x, y);
-            RECT rc;
-            GetClientRect(hWnd, &rc);
-            InvalidateRect(hWnd, &rc, FALSE);
-            UpdateWindow(hWnd);
-            return 0;
+            pGame->_ForceRedraw(hWnd);
             return 0;
         }
 

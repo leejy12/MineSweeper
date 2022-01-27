@@ -11,7 +11,7 @@ export struct CellInfo
 {
     bool explored = false;
     bool hasMine = false;
-    bool flagged = false;
+    bool hasFlag = false;
     int adjacentMines = 0;
 };
 
@@ -33,7 +33,7 @@ public:
 
     void ToggleFlag(int x, int y)
     {
-        _cells[x][y].flagged = !_cells[x][y].flagged;
+        _cells[x][y].hasFlag = !_cells[x][y].hasFlag;
     }
 
     void PlaceMines(int x, int y)
@@ -108,7 +108,7 @@ public:
 
     int StepOn(int x, int y)
     {
-        if (_cells[x][y].explored || _cells[x][y].hasMine || _cells[x][y].flagged)
+        if (_cells[x][y].explored || _cells[x][y].hasMine || _cells[x][y].hasFlag)
             return 0;
 
         _cells[x][y].explored = true;
@@ -140,6 +140,20 @@ public:
         }
 
         return 1;
+    }
+
+    void Reset()
+    {
+        for (int x = 0; x < _fieldWidth; x++)
+        {
+            for (int y = 0; y < _fieldHeight; y++)
+            {
+                _cells[x][y].explored = false;
+                _cells[x][y].hasMine = false;
+                _cells[x][y].hasFlag = false;
+                _cells[x][y].adjacentMines = 0;
+            }
+        }
     }
 
     CellInfo GetCellInfo(int x, int y) const
