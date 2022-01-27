@@ -39,9 +39,9 @@ public:
 
         // Randomly select `_numMines` number of cells that will contain mines
         std::vector<Index> indices;
-        for (int r = 0; r < _fieldHeight; r++)
-            for (int c = 0; c < _fieldWidth; c++)
-                indices.push_back({ c, r });
+        for (int y = 0; y < _fieldHeight; y++)
+            for (int x = 0; x < _fieldWidth; x++)
+                indices.push_back({ x, y });
 
         std::random_device rd;
         std::mt19937 eng(rd());
