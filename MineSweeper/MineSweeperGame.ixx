@@ -82,11 +82,13 @@ private:
                                            BLOCK_SIZE - OFFSET,
                                            BLOCK_SIZE - OFFSET);
 
-                    Gdiplus::PointF point(static_cast<Gdiplus::REAL>(MARGIN + x * BLOCK_SIZE),
-                                          static_cast<Gdiplus::REAL>(MARGIN + y * BLOCK_SIZE));
+                    Gdiplus::PointF point((MARGIN + (x + 0.25f) * BLOCK_SIZE), (MARGIN + (y + 0.2f) * BLOCK_SIZE));
                     if (cells[x][y].adjacentMines > 0)
-                        graphics.DrawString(
-                            std::to_wstring(cells[x][y].adjacentMines).c_str(), -1, &font, point, &mineBrush[cells[x][y].adjacentMines - 1]);
+                        graphics.DrawString(std::to_wstring(cells[x][y].adjacentMines).c_str(),
+                                            -1,
+                                            &font,
+                                            point,
+                                            &mineBrush[cells[x][y].adjacentMines - 1]);
                 }
                 else
                 {

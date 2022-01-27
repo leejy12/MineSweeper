@@ -8,7 +8,7 @@ AlignConsecutiveDeclarations: false
 AllowAllConstructorInitializersOnNextLine: true
 AlignEscapedNewlines: Left
 AlignOperands: true
-AlignTrailingComments: false
+AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: false
