@@ -42,6 +42,18 @@ private:
         Gdiplus::FontFamily fontFamily(L"Times New Roman");
         Gdiplus::Font font(&fontFamily, 24, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
 
+        // Brushes to draw numbers on cells
+        Gdiplus::SolidBrush mineBrush[8] = {
+            Gdiplus::SolidBrush(Gdiplus::Color::Blue),      // 1
+            Gdiplus::SolidBrush(Gdiplus::Color::Green),     // 2
+            Gdiplus::SolidBrush(Gdiplus::Color::Red),       // 3
+            Gdiplus::SolidBrush(Gdiplus::Color::Navy),      // 4
+            Gdiplus::SolidBrush(Gdiplus::Color::Brown),     // 5
+            Gdiplus::SolidBrush(Gdiplus::Color::Turquoise), // 6
+            Gdiplus::SolidBrush(Gdiplus::Color::Black),     // 7
+            Gdiplus::SolidBrush(Gdiplus::Color::Gray)       // 8
+        };
+
         const int fieldWidth = _mineField.GetWidth();
         const int fieldHeight = _mineField.GetHeight();
 
@@ -74,7 +86,7 @@ private:
                                           static_cast<Gdiplus::REAL>(MARGIN + y * BLOCK_SIZE));
                     if (cells[x][y].adjacentMines > 0)
                         graphics.DrawString(
-                            std::to_wstring(cells[x][y].adjacentMines).c_str(), -1, &font, point, &textBrush);
+                            std::to_wstring(cells[x][y].adjacentMines).c_str(), -1, &font, point, &mineBrush[cells[x][y].adjacentMines - 1]);
                 }
                 else
                 {
@@ -118,14 +130,14 @@ public:
         _wc.lpfnWndProc = WndProcInit;
         _wc.style = CS_VREDRAW | CS_HREDRAW;
         _wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-        _wc.lpszClassName = L"SNAKE_GAME_WINDOW_CLASS";
+        _wc.lpszClassName = L"MINESWEEPER_GAME_WINDOW_CLASS";
         _wc.hCursor = LoadCursorW(nullptr, IDC_ARROW);
 
         RegisterClassExW(&_wc);
 
         _hWnd = CreateWindowExW(0,
                                 _wc.lpszClassName,
-                                L"Snake",
+                                L"MineSweeper",
                                 WS_OVERLAPPEDWINDOW ^ WS_THICKFRAME ^ WS_MAXIMIZEBOX,
                                 CW_USEDEFAULT,
                                 CW_USEDEFAULT,
