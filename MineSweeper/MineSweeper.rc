@@ -83,9 +83,9 @@ BEGIN
     IDD_GAMEABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 302
+        RIGHTMARGIN, 258
         TOPMARGIN, 7
-        BOTTOMMARGIN, 120
+        BOTTOMMARGIN, 102
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -96,15 +96,15 @@ END
 // Dialog
 //
 
-IDD_GAMEABOUTBOX DIALOGEX 0, 0, 309, 127
+IDD_GAMEABOUTBOX DIALOGEX 0, 0, 265, 112
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About MineSweeper"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,253,106,50,14
-    LTEXT           "MineSweeper",IDC_STATIC,25,33,44,8
-    LTEXT           "Copyright © 2022, Junyoung Lee",IDC_STATIC,25,50,121,8
-    CONTROL         "<a>See source code on GitHub</a>",IDC_SYSLINK1,"SysLink",WS_TABSTOP,25,76,110,14
+    DEFPUSHBUTTON   "OK",IDOK,208,87,50,14
+    LTEXT           "MineSweeper",IDC_STATIC,24,22,44,8
+    LTEXT           "Copyright © 2022, Junyoung Lee",IDC_STATIC,23,36,121,8
+    CONTROL         "<a>See source code on GitHub</a>",IDC_SYSLINK1,"SysLink",WS_TABSTOP,23,59,110,14
 END
 
 

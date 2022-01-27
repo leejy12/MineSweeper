@@ -4,7 +4,6 @@
 //
 #define IDD_GAMEABOUTBOX                5
 #define IDR_MENU1                       101
-#define IDC_SPIN1                       1012
 #define IDC_SYSLINK1                    1013
 #define ID_GAME_NEWGAME                 40001
 #define ID_HELP_ABOUT                   40002
