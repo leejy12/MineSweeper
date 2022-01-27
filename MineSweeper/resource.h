@@ -2,9 +2,10 @@
 // Microsoft Visual C++ generated include file.
 // Used by MineSweeper.rc
 //
-#define IDD_GAMEABOUTBOX                5
+#define ID_ABOUT                        9
 #define IDR_MENU1                       101
-#define IDC_SYSLINK1                    1013
+#define ID_OK                           1014
+#define IDC_SYSLINK1                    1015
 #define ID_GAME_NEWGAME                 40001
 #define ID_HELP_ABOUT                   40002
 #define ID_GAME_SETDIFFICULTY           40003
@@ -18,9 +19,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
+#define _APS_NEXT_RESOURCE_VALUE        108
 #define _APS_NEXT_COMMAND_VALUE         40009
-#define _APS_NEXT_CONTROL_VALUE         1014
+#define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

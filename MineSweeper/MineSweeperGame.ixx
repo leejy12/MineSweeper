@@ -1,9 +1,9 @@
 module;
 
-#include <vector>
 #include <Windows.h>
 #include <strsafe.h>
 #include <gdiplus.h>
+#include <CommCtrl.h>
 #include <string>
 
 #include "resource.h"
@@ -191,6 +191,11 @@ public:
                                 _wc.hInstance,
                                 this);
 
+        INITCOMMONCONTROLSEX icce;
+        icce.dwSize = sizeof(icce);
+        icce.dwICC = ICC_LINK_CLASS;
+        InitCommonControlsEx(&icce);
+
         if (!_hWnd)
         {
             DisplayError(L"CreateWindowExW");
@@ -246,9 +251,7 @@ public:
 
             case ID_HELP_ABOUT:
             {
-                auto ret = DialogBoxW(pGame->_wc.hInstance, MAKEINTRESOURCEW(IDD_GAMEABOUTBOX), hWnd, About);
-                if (ret == -1)
-                    DisplayError(L"DialogBoxW");
+                DialogBoxW(pGame->_wc.hInstance, MAKEINTRESOURCEW(ID_ABOUT), pGame->_hWnd, About);
                 break;
             }
 
@@ -377,22 +380,20 @@ public:
     }
 };
 
-INT_PTR CALLBACK About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+INT_PTR About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (msg)
+    switch(msg)
     {
     case WM_INITDIALOG:
         return TRUE;
 
     case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK)
+        if (LOWORD(wParam) == ID_OK || LOWORD(wParam) == IDCANCEL)
         {
-            EndDialog(hDlg, LOWORD(wParam));
+            EndDialog(hDlg, LOWORD(lParam));
             return TRUE;
         }
-        break;
     }
-
     return FALSE;
 }
 
