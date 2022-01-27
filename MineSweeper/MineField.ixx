@@ -11,6 +11,7 @@ export struct CellInfo
 {
     bool explored = false;
     bool hasMine = false;
+    bool flagged = false;
     int adjacentMines = 0;
 };
 
@@ -28,6 +29,11 @@ public:
         _cells.resize(fieldWidth);
         for (auto& column : _cells)
             column.resize(fieldHeight);
+    }
+
+    void ToggleFlag(int x, int y)
+    {
+        _cells[x][y].flagged = !_cells[x][y].flagged;
     }
 
     void PlaceMines(int x, int y)
@@ -102,7 +108,7 @@ public:
 
     int StepOn(int x, int y)
     {
-        if (_cells[x][y].explored || _cells[x][y].hasMine)
+        if (_cells[x][y].explored || _cells[x][y].hasMine || _cells[x][y].flagged)
             return 0;
 
         _cells[x][y].explored = true;
@@ -136,14 +142,9 @@ public:
         return 1;
     }
 
-    int GetNumAdjacentMines(int x, int y) const
+    CellInfo GetCellInfo(int x, int y) const
     {
-        return _cells[x][y].adjacentMines;
-    }
-
-    bool HasMine(int x, int y) const
-    {
-        return _cells[x][y].hasMine;
+        return _cells[x][y];
     }
 
     int GetWidth() const
@@ -159,10 +160,5 @@ public:
     int GetNumMines() const
     {
         return _numMines;
-    }
-
-    std::vector<std::vector<CellInfo>>& GetCells()
-    {
-        return _cells;
     }
 };

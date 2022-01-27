@@ -54,6 +54,10 @@ private:
             Gdiplus::SolidBrush(Gdiplus::Color::Gray)       // 8
         };
 
+        // Brush and pen to draw flags
+        Gdiplus::SolidBrush flagBrush(Gdiplus::Color::DarkRed);
+        Gdiplus::Pen flagPolePen(Gdiplus::Color::Black, 2.0f);
+
         const int fieldWidth = _mineField.GetWidth();
         const int fieldHeight = _mineField.GetHeight();
 
@@ -69,12 +73,12 @@ private:
         graphics.DrawString(statusMsg, -1, &font, statusLocation, &textBrush);
 
         // Draw minefield
-        auto& cells = _mineField.GetCells();
         for (int x = 0; x < fieldWidth; x++)
         {
             for (int y = 0; y < fieldHeight; y++)
             {
-                if (cells[x][y].explored)
+                const auto cell = _mineField.GetCellInfo(x, y);
+                if (cell.explored)
                 {
                     graphics.FillRectangle(&exploredBrush,
                                            MARGIN + OFFSET + x * BLOCK_SIZE,
@@ -83,12 +87,12 @@ private:
                                            BLOCK_SIZE - OFFSET);
 
                     Gdiplus::PointF point((MARGIN + (x + 0.25f) * BLOCK_SIZE), (MARGIN + (y + 0.2f) * BLOCK_SIZE));
-                    if (cells[x][y].adjacentMines > 0)
-                        graphics.DrawString(std::to_wstring(cells[x][y].adjacentMines).c_str(),
+                    if (cell.adjacentMines > 0)
+                        graphics.DrawString(std::to_wstring(cell.adjacentMines).c_str(),
                                             -1,
                                             &font,
                                             point,
-                                            &mineBrush[cells[x][y].adjacentMines - 1]);
+                                            &mineBrush[cell.adjacentMines - 1]);
                 }
                 else
                 {
@@ -97,6 +101,21 @@ private:
                                            MARGIN + OFFSET + y * BLOCK_SIZE,
                                            BLOCK_SIZE - OFFSET,
                                            BLOCK_SIZE - OFFSET);
+                    if (cell.flagged)
+                    {
+                        Gdiplus::PointF trianglePoints[3] = {
+                            Gdiplus::PointF(MARGIN + (x + 0.4f) * BLOCK_SIZE, MARGIN + (y + 0.2f) * BLOCK_SIZE),
+                            Gdiplus::PointF(MARGIN + (x + 0.4f) * BLOCK_SIZE, MARGIN + (y + 0.6f) * BLOCK_SIZE),
+                            Gdiplus::PointF(MARGIN + (x + 0.8f) * BLOCK_SIZE, MARGIN + (y + 0.4f) * BLOCK_SIZE)
+                        };
+
+                        graphics.FillPolygon(&flagBrush, trianglePoints, 3);
+                        graphics.DrawLine(&flagPolePen,
+                                          MARGIN + (x + 0.4f) * BLOCK_SIZE,
+                                          MARGIN + (y + 0.2f) * BLOCK_SIZE,
+                                          MARGIN + (x + 0.4f) * BLOCK_SIZE,
+                                          MARGIN + (y + 0.8f) * BLOCK_SIZE);
+                    }
                 }
             }
         }
@@ -225,8 +244,13 @@ public:
             }
             else
             {
-                // Player clicked a mine
-                if (pGame->_mineField.HasMine(x, y))
+                const auto cell = pGame->_mineField.GetCellInfo(x, y);
+
+                if (cell.flagged)
+                {
+                    return 0;
+                }
+                if (cell.hasMine)
                 {
                     MessageBoxW(hWnd, L"BOOM!", L"BOOM!", MB_OK | MB_ICONEXCLAMATION);
                     return 0;
@@ -241,6 +265,23 @@ public:
                 UpdateWindow(hWnd);
                 return 0;
             }
+        }
+
+        case WM_RBUTTONDOWN:
+        {
+            int x = (LOWORD(lParam) - MARGIN) / BLOCK_SIZE;
+            int y = (HIWORD(lParam) - MARGIN) / BLOCK_SIZE;
+
+            if (x < 0 || x >= pGame->_mineField.GetWidth() || y < 0 || y >= pGame->_mineField.GetHeight())
+                return 0;
+
+            pGame->_mineField.ToggleFlag(x, y);
+            RECT rc;
+            GetClientRect(hWnd, &rc);
+            InvalidateRect(hWnd, &rc, FALSE);
+            UpdateWindow(hWnd);
+            return 0;
+            return 0;
         }
 
         case WM_SIZE:
