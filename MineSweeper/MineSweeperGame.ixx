@@ -299,7 +299,11 @@ public:
                                 pGame->_hWnd,
                                 Custom,
                                 reinterpret_cast<LPARAM>(&customInfo));
-                pGame->_ResetGame(customInfo[0], customInfo[1], customInfo[2], true);
+                
+                // If user presses CANCEL or X in the dialog, it will set customInfo[0] to -1
+                if (customInfo[0] != -1)
+                    pGame->_ResetGame(customInfo[0], customInfo[1], customInfo[2], true);
+
                 break;
             }
 
@@ -426,6 +430,8 @@ INT_PTR Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
         if (LOWORD(wParam) == IDCANCEL)
         {
+            // Use pCustomInfo to send information back to the game window
+            (*pCustomInfo)[0] = -1;
             EndDialog(hDlg, LOWORD(lParam));
             return TRUE;
         }
