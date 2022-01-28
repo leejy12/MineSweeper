@@ -33,6 +33,7 @@ private:
 
     MineField _mineField;
     bool _gameStarted;
+    int _numExploredCells;
 
     void _OnPaint(HDC hdc)
     {
@@ -158,8 +159,17 @@ private:
         UpdateWindow(hWnd);
     }
 
+    void _ResetGame(int newWidth, int newHeight, int newMines, bool bErase)
+    {
+        _mineField.Reset(newWidth, newHeight, newMines);
+        _gameStarted = false;
+        _numExploredCells = 0;
+        _ForceRedraw(_hWnd, bErase);
+    }
+
 public:
-    MineSweeperGame(int width, int height, int mines) : _mineField(width, height, mines), _gameStarted(false)
+    MineSweeperGame(int width, int height, int mines) :
+        _mineField(width, height, mines), _gameStarted(false), _numExploredCells(0)
     {
         _wc.cbSize = sizeof(_wc);
         _wc.hInstance = GetModuleHandleW(nullptr);
@@ -264,33 +274,27 @@ public:
             case ID_SETDIFFICULTY_EASY:
             {
                 const auto rc = CalculateNewWindowSize(Difficulty::EASY);
-                pGame->_mineField.Reset(9, 9, 10);
-                pGame->_gameStarted = false;
                 SetWindowPos(
                     pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
-                pGame->_ForceRedraw(hWnd, TRUE);
+                pGame->_ResetGame(9, 9, 10, true);
                 break;
             }
 
             case ID_SETDIFFICULTY_MEDIUM:
             {
                 const auto rc = CalculateNewWindowSize(Difficulty::MEDIUM);
-                pGame->_mineField.Reset(16, 16, 40);
-                pGame->_gameStarted = false;
                 SetWindowPos(
                     pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
-                pGame->_ForceRedraw(hWnd, TRUE);
+                pGame->_ResetGame(16, 16, 40, true);
                 break;
             }
 
             case ID_SETDIFFICULTY_HARD:
             {
                 const auto rc = CalculateNewWindowSize(Difficulty::HARD);
-                pGame->_mineField.Reset(30, 16, 99);
-                pGame->_gameStarted = false;
                 SetWindowPos(
                     pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
-                pGame->_ForceRedraw(hWnd, TRUE);
+                pGame->_ResetGame(30, 16, 99, true);
                 break;
             }
 
@@ -321,18 +325,19 @@ public:
         {
             int x = (LOWORD(lParam) - MARGIN) / BLOCK_SIZE;
             int y = (HIWORD(lParam) - MARGIN) / BLOCK_SIZE;
+            auto& mf = pGame->_mineField;
 
-            if (x < 0 || x >= pGame->_mineField.GetWidth() || y < 0 || y >= pGame->_mineField.GetHeight())
+            if (x < 0 || x >= mf.GetWidth() || y < 0 || y >= mf.GetHeight())
                 return 0;
 
             if (!pGame->_gameStarted)
             {
-                pGame->_mineField.PlaceMines(x, y);
+                mf.PlaceMines(x, y);
                 pGame->_gameStarted = true;
             }
             else
             {
-                const auto cell = pGame->_mineField.GetCellInfo(x, y);
+                const auto cell = mf.GetCellInfo(x, y);
 
                 if (cell.hasFlag)
                 {
@@ -341,19 +346,25 @@ public:
                 if (cell.hasMine)
                 {
                     MessageBoxW(hWnd, L"BOOM!", L"BOOM!", MB_OK | MB_ICONEXCLAMATION);
-                    pGame->_mineField.Reset(
-                        pGame->_mineField.GetWidth(), pGame->_mineField.GetHeight(), pGame->_mineField.GetNumMines());
-                    pGame->_gameStarted = false;
-                    pGame->_ForceRedraw(hWnd, FALSE);
+                    pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), false);
                     return 0;
                 }
             }
 
-            if (pGame->_mineField.StepOn(x, y) == 1)
+            const auto newlyExploredCells = mf.StepOn(x, y);
+            pGame->_numExploredCells += newlyExploredCells;
+            if (newlyExploredCells > 0)
             {
                 pGame->_ForceRedraw(hWnd, FALSE);
-                return 0;
             }
+
+            if (pGame->_numExploredCells >= mf.GetWidth() * mf.GetHeight() - mf.GetNumMines())
+            {
+                MessageBoxW(pGame->_hWnd, L"You win!", L"You win", MB_OK);
+                pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), true);
+            }
+
+            return 0;
         }
 
         case WM_RBUTTONDOWN:

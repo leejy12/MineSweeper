@@ -116,30 +116,33 @@ public:
         if (_cells[x][y].adjacentMines > 0)
             return 1;
 
+        int exploredCells = 0;
+
         if (x > 0)
         {
-            StepOn(x - 1, y);
+            exploredCells += StepOn(x - 1, y);
             if (y > 0)
-                StepOn(x - 1, y - 1);
+                exploredCells += StepOn(x - 1, y - 1);
             if (y < _fieldHeight - 1)
-                StepOn(x - 1, y + 1);
+                exploredCells += StepOn(x - 1, y + 1);
         }
 
         if (y > 0)
-            StepOn(x, y - 1);
+            exploredCells += StepOn(x, y - 1);
         if (y < _fieldHeight - 1)
-            StepOn(x, y + 1);
+            exploredCells += StepOn(x, y + 1);
 
         if (x < _fieldWidth - 1)
         {
-            StepOn(x + 1, y);
+            exploredCells += StepOn(x + 1, y);
             if (y > 0)
-                StepOn(x + 1, y - 1);
+                exploredCells += StepOn(x + 1, y - 1);
             if (y < _fieldHeight - 1)
-                StepOn(x + 1, y + 1);
+                exploredCells += StepOn(x + 1, y + 1);
         }
 
-        return 1;
+        // The 1 that is added here corresponds to the current cell (x, y)
+        return 1 + exploredCells;
     }
 
     void Reset(int newWidth, int newHeight, int newMines)
