@@ -33,7 +33,7 @@ private:
     bool _shouldRedrawGrid;
 
     MineField _mineField;
-    bool _gameStarted;
+    bool _gameStarted, _kaBoom;
     int _numExploredCells;
 
     void _OnPaint(HDC hdc)
@@ -87,6 +87,7 @@ private:
             for (int y = 0; y < fieldHeight; y++)
             {
                 const auto cell = _mineField.GetCellInfo(x, y);
+                Gdiplus::PointF point((MARGIN + (x + 0.25f) * BLOCK_SIZE), (MARGIN + (y + 0.2f) * BLOCK_SIZE));
                 if (cell.explored)
                 {
                     graphics.FillRectangle(&exploredBrush,
@@ -95,7 +96,6 @@ private:
                                            BLOCK_SIZE - OFFSET,
                                            BLOCK_SIZE - OFFSET);
 
-                    Gdiplus::PointF point((MARGIN + (x + 0.25f) * BLOCK_SIZE), (MARGIN + (y + 0.2f) * BLOCK_SIZE));
                     if (cell.adjacentMines > 0)
                         graphics.DrawString(std::to_wstring(cell.adjacentMines).c_str(),
                                             -1,
@@ -126,8 +126,15 @@ private:
                                           MARGIN + (y + 0.8f) * BLOCK_SIZE);
                     }
                 }
+
+                if (cell.hasMine && _kaBoom)
+                {
+                    point.X -= 0.15f * BLOCK_SIZE;
+                    graphics.DrawString(L"\u2739", 1, &font, point, &mineBrush[2]);
+                }
             }
         }
+        _kaBoom = false;
 
         // Draw grids
         if (!_gameStarted || _shouldRedrawGrid)
@@ -342,6 +349,8 @@ public:
                 }
                 if (cell.hasMine)
                 {
+                    pGame->_kaBoom = true;
+                    pGame->_ForceRedraw(pGame->_hWnd, false);
                     MessageBoxW(hWnd, L"BOOM!", L"BOOM!", MB_OK | MB_ICONEXCLAMATION);
                     pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), false);
                     return 0;
@@ -357,7 +366,7 @@ public:
 
             if (pGame->_numExploredCells >= mf.GetWidth() * mf.GetHeight() - mf.GetNumMines())
             {
-                MessageBoxW(pGame->_hWnd, L"You win!", L"You win", MB_OK);
+                MessageBoxW(pGame->_hWnd, L"You win!", L"You win!", MB_OK);
                 pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), true);
             }
 
