@@ -248,6 +248,7 @@ public:
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         MineSweeperGame* pGame = reinterpret_cast<MineSweeperGame*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
+        auto& mf = pGame->_mineField;
 
         switch (msg)
         {
@@ -268,7 +269,7 @@ public:
 
             case ID_GAME_NEWGAME:
             {
-                pGame->_ForceRedraw(hWnd, true);
+                pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), true);
                 break;
             }
 
@@ -329,7 +330,6 @@ public:
         {
             int x = (LOWORD(lParam) - MARGIN) / BLOCK_SIZE;
             int y = (HIWORD(lParam) - MARGIN) / BLOCK_SIZE;
-            auto& mf = pGame->_mineField;
 
             if (x < 0 || x >= mf.GetWidth() || y < 0 || y >= mf.GetHeight())
                 return 0;
