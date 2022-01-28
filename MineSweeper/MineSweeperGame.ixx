@@ -269,7 +269,7 @@ public:
 
             case ID_GAME_NEWGAME:
             {
-                pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), true);
+                pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), false);
                 break;
             }
 
@@ -361,7 +361,7 @@ public:
             pGame->_numExploredCells += newlyExploredCells;
             if (newlyExploredCells > 0)
             {
-                pGame->_ForceRedraw(hWnd, FALSE);
+                pGame->_ForceRedraw(hWnd, false);
             }
 
             if (pGame->_numExploredCells >= mf.GetWidth() * mf.GetHeight() - mf.GetNumMines())
@@ -382,7 +382,7 @@ public:
                 return 0;
 
             pGame->_mineField.ToggleFlag(x, y);
-            pGame->_ForceRedraw(hWnd, FALSE);
+            pGame->_ForceRedraw(hWnd, false);
             return 0;
         }
 
