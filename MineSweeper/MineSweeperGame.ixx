@@ -422,13 +422,13 @@ INT_PTR Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             std::wstringstream wss;
             int width = 0, height = 0, mines = 0;
-            wchar_t widthBuffer[4] = { 0 };
-            wchar_t heightBuffer[4] = { 0 };
-            wchar_t minesBuffer[4] = { 0 };
+            wchar_t widthBuffer[8] = { 0 };
+            wchar_t heightBuffer[8] = { 0 };
+            wchar_t minesBuffer[8] = { 0 };
 
-            GetDlgItemTextW(hDlg, IDC_EDIT_WIDTH, widthBuffer, 4);
-            GetDlgItemTextW(hDlg, IDC_EDIT_HEIGHT, heightBuffer, 4);
-            GetDlgItemTextW(hDlg, IDC_EDIT_MINES, minesBuffer, 4);
+            GetDlgItemTextW(hDlg, IDC_EDIT_WIDTH, widthBuffer, 8);
+            GetDlgItemTextW(hDlg, IDC_EDIT_HEIGHT, heightBuffer, 8);
+            GetDlgItemTextW(hDlg, IDC_EDIT_MINES, minesBuffer, 8);
             wss << widthBuffer;
             wss >> width;
             wss.clear();
