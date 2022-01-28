@@ -7,4 +7,4 @@ Open the Solution with Visual Studio. Your toolset must support C++20, as this p
 Then, just build it (Ctrl + Shift + B).
 
 ## Screenshot
-![screenshot](https://github.com/leejy12/MineSweeper/Screenshots/screenshot.png)
+![screenshot](https://github.com/leejy12/MineSweeper/blob/master/Screenshots/screenshot.png)
