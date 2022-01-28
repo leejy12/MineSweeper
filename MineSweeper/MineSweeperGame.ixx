@@ -30,7 +30,6 @@ private:
 
     Gdiplus::GdiplusStartupInput _gdiplusStartupInput;
     ULONG_PTR _gdiplusToken;
-    bool _shouldRedrawGrid;
 
     MineField _mineField;
     bool _gameStarted, _kaBoom;
@@ -137,25 +136,15 @@ private:
         _kaBoom = false;
 
         // Draw grids
-        if (!_gameStarted || _shouldRedrawGrid)
+        for (int x = 0; x < fieldWidth + 1; x++)
         {
-            for (int x = 0; x < fieldWidth + 1; x++)
-            {
-                graphics.DrawLine(&gridPen,
-                                  MARGIN + x * BLOCK_SIZE,
-                                  MARGIN,
-                                  MARGIN + x * BLOCK_SIZE,
-                                  MARGIN + fieldHeight * BLOCK_SIZE);
-            }
-            for (int y = 0; y < fieldHeight + 1; y++)
-            {
-                graphics.DrawLine(&gridPen,
-                                  MARGIN,
-                                  MARGIN + y * BLOCK_SIZE,
-                                  MARGIN + fieldWidth * BLOCK_SIZE,
-                                  MARGIN + y * BLOCK_SIZE);
-            }
-            _shouldRedrawGrid = false;
+            graphics.DrawLine(
+                &gridPen, MARGIN + x * BLOCK_SIZE, MARGIN, MARGIN + x * BLOCK_SIZE, MARGIN + fieldHeight * BLOCK_SIZE);
+        }
+        for (int y = 0; y < fieldHeight + 1; y++)
+        {
+            graphics.DrawLine(
+                &gridPen, MARGIN, MARGIN + y * BLOCK_SIZE, MARGIN + fieldWidth * BLOCK_SIZE, MARGIN + y * BLOCK_SIZE);
         }
     }
 
@@ -179,7 +168,7 @@ private:
 
 public:
     MineSweeperGame(int width, int height, int mines) :
-        _mineField(width, height, mines), _gameStarted(false), _numExploredCells(0), _shouldRedrawGrid(false)
+        _mineField(width, height, mines), _gameStarted(false), _numExploredCells(0)
     {
         _wc.cbSize = sizeof(_wc);
         _wc.hInstance = GetModuleHandleW(nullptr);
@@ -299,7 +288,7 @@ public:
                                 pGame->_hWnd,
                                 Custom,
                                 reinterpret_cast<LPARAM>(&customInfo));
-                
+
                 // If user presses CANCEL or X in the dialog, it will set customInfo[0] to -1
                 if (customInfo[0] != -1)
                     pGame->_ResetGame(customInfo[0], customInfo[1], customInfo[2], true);
@@ -387,12 +376,6 @@ public:
 
             pGame->_mineField.ToggleFlag(x, y);
             pGame->_ForceRedraw(hWnd, false);
-            return 0;
-        }
-
-        case WM_SIZE:
-        {
-            pGame->_shouldRedrawGrid = true;
             return 0;
         }
         }
