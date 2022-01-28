@@ -15,13 +15,6 @@ export struct CellInfo
     int adjacentMines = 0;
 };
 
-export enum class Difficulty
-{
-    EASY,
-    MEDIUM,
-    HARD
-};
-
 export class MineField
 {
 private:
@@ -147,24 +140,6 @@ public:
         }
 
         return 1;
-    }
-
-    void Reset(Difficulty diff)
-    {
-        switch (diff)
-        {
-        case Difficulty::EASY:
-            Reset(9, 9, 10);
-            break;
-        case Difficulty::MEDIUM:
-            Reset(16, 16, 40);
-            break;
-        case Difficulty::HARD:
-            Reset(30, 16, 99);
-            break;
-        default:
-            break;
-        }
     }
 
     void Reset(int newWidth, int newHeight, int newMines)

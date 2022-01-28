@@ -12,6 +12,7 @@ export module MineSweeperGame;
 import Helpers;
 import MineField;
 
+constexpr int IDT_GAME_TIMER = 12345;
 constexpr int BLOCK_SIZE = 40;
 constexpr int MARGIN = 100;
 constexpr int OFFSET = 1;
@@ -38,10 +39,8 @@ private:
     {
         Gdiplus::Graphics graphics(hdc);
 
-        // Pen to draw grids
         Gdiplus::Pen gridPen(Gdiplus::Color::Black, 1);
 
-        // Brushes to draw cells
         Gdiplus::SolidBrush unexploredBrush(Gdiplus::Color::DarkGray);
         Gdiplus::SolidBrush exploredBrush(Gdiplus::Color::LightGray);
 
@@ -264,7 +263,7 @@ public:
             case ID_SETDIFFICULTY_EASY:
             {
                 const auto rc = CalculateNewWindowSize(Difficulty::EASY);
-                pGame->_mineField.Reset(9, 9, 10);
+                pGame->_mineField.Reset(Difficulty::EASY);
                 pGame->_gameStarted = false;
                 SetWindowPos(
                     pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
@@ -275,7 +274,7 @@ public:
             case ID_SETDIFFICULTY_MEDIUM:
             {
                 const auto rc = CalculateNewWindowSize(Difficulty::MEDIUM);
-                pGame->_mineField.Reset(16, 16, 40);
+                pGame->_mineField.Reset(Difficulty::MEDIUM);
                 pGame->_gameStarted = false;
                 SetWindowPos(
                     pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
@@ -286,7 +285,7 @@ public:
             case ID_SETDIFFICULTY_HARD:
             {
                 const auto rc = CalculateNewWindowSize(Difficulty::HARD);
-                pGame->_mineField.Reset(30, 16, 99);
+                pGame->_mineField.Reset(Difficulty::HARD);
                 pGame->_gameStarted = false;
                 SetWindowPos(
                     pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
