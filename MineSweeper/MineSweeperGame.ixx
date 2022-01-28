@@ -4,6 +4,8 @@ module;
 #include <strsafe.h>
 #include <gdiplus.h>
 #include <string>
+#include <array>
+#include <sstream>
 
 #include "resource.h"
 
@@ -16,10 +18,9 @@ constexpr int BLOCK_SIZE = 40;
 constexpr int MARGIN = 100;
 constexpr int OFFSET = 1;
 
-export enum class Difficulty { EASY, MEDIUM, HARD };
-
 INT_PTR CALLBACK About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
-RECT CalculateNewWindowSize(Difficulty diff);
+INT_PTR CALLBACK Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
+RECT CalculateNewWindowSize(int width, int height);
 
 export class MineSweeperGame
 {
@@ -29,7 +30,7 @@ private:
 
     Gdiplus::GdiplusStartupInput _gdiplusStartupInput;
     ULONG_PTR _gdiplusToken;
-    bool _shouldRedrawGrid = false;
+    bool _shouldRedrawGrid;
 
     MineField _mineField;
     bool _gameStarted;
@@ -47,7 +48,7 @@ private:
         Gdiplus::SolidBrush exploredBrush(Gdiplus::Color::LightGray);
 
         Gdiplus::SolidBrush textBrush(Gdiplus::Color::Red);
-        Gdiplus::FontFamily fontFamily(L"Times New Roman");
+        Gdiplus::FontFamily fontFamily(L"Consolas");
         Gdiplus::Font font(&fontFamily, 24, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);
 
         // Brushes to draw numbers on cells
@@ -70,11 +71,11 @@ private:
         const int fieldHeight = _mineField.GetHeight();
 
         // Show information about game status
-        Gdiplus::PointF statusLocation(static_cast<Gdiplus::REAL>(MARGIN), static_cast<Gdiplus::REAL>(MARGIN / 2));
+        Gdiplus::PointF statusLocation(static_cast<Gdiplus::REAL>(MARGIN), static_cast<Gdiplus::REAL>(MARGIN / 3));
         wchar_t statusMsg[128] = { 0 };
         StringCbPrintfW(statusMsg,
                         sizeof(statusMsg),
-                        L"Dimension: %d X %d\t\tMines: %d",
+                        L"Dimension: %d X %d\nMines: %d",
                         fieldWidth,
                         fieldHeight,
                         _mineField.GetNumMines());
@@ -159,17 +160,19 @@ private:
         UpdateWindow(hWnd);
     }
 
-    void _ResetGame(int newWidth, int newHeight, int newMines, bool bErase)
+    void _ResetGame(int newWidth, int newHeight, int newMines, bool bEraseBackground)
     {
         _mineField.Reset(newWidth, newHeight, newMines);
         _gameStarted = false;
         _numExploredCells = 0;
-        _ForceRedraw(_hWnd, bErase);
+        const RECT rc = CalculateNewWindowSize(newWidth, newHeight);
+        SetWindowPos(_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
+        _ForceRedraw(_hWnd, bEraseBackground);
     }
 
 public:
     MineSweeperGame(int width, int height, int mines) :
-        _mineField(width, height, mines), _gameStarted(false), _numExploredCells(0)
+        _mineField(width, height, mines), _gameStarted(false), _numExploredCells(0), _shouldRedrawGrid(false)
     {
         _wc.cbSize = sizeof(_wc);
         _wc.hInstance = GetModuleHandleW(nullptr);
@@ -182,13 +185,7 @@ public:
 
         RegisterClassExW(&_wc);
 
-        RECT rc = {
-            .left = 0,
-            .top = 0,
-            .right = 2 * MARGIN + BLOCK_SIZE * (width),
-            .bottom = 2 * MARGIN + BLOCK_SIZE * (height),
-        };
-        AdjustWindowRect(&rc, WS_CAPTION, TRUE);
+        const RECT rc = CalculateNewWindowSize(width, height);
 
         _hWnd = CreateWindowExW(0,
                                 _wc.lpszClassName,
@@ -258,43 +255,43 @@ public:
 
             case ID_HELP_ABOUT:
             {
-                DialogBoxW(pGame->_wc.hInstance, MAKEINTRESOURCEW(ID_ABOUT), pGame->_hWnd, About);
+                DialogBoxW(pGame->_wc.hInstance, MAKEINTRESOURCEW(IDD_ABOUT), pGame->_hWnd, About);
                 break;
             }
 
             case ID_GAME_NEWGAME:
             {
-                pGame->_mineField.Reset(
-                    pGame->_mineField.GetWidth(), pGame->_mineField.GetHeight(), pGame->_mineField.GetNumMines());
-                pGame->_gameStarted = false;
-                pGame->_ForceRedraw(hWnd, FALSE);
+                pGame->_ForceRedraw(hWnd, true);
                 break;
             }
 
             case ID_SETDIFFICULTY_EASY:
             {
-                const auto rc = CalculateNewWindowSize(Difficulty::EASY);
-                SetWindowPos(
-                    pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
                 pGame->_ResetGame(9, 9, 10, true);
                 break;
             }
 
             case ID_SETDIFFICULTY_MEDIUM:
             {
-                const auto rc = CalculateNewWindowSize(Difficulty::MEDIUM);
-                SetWindowPos(
-                    pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
                 pGame->_ResetGame(16, 16, 40, true);
                 break;
             }
 
             case ID_SETDIFFICULTY_HARD:
             {
-                const auto rc = CalculateNewWindowSize(Difficulty::HARD);
-                SetWindowPos(
-                    pGame->_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
                 pGame->_ResetGame(30, 16, 99, true);
+                break;
+            }
+
+            case ID_SETDIFFICULTY_CUSTOM:
+            {
+                std::array<int, 3> customInfo{};
+                DialogBoxParamW(pGame->_wc.hInstance,
+                                MAKEINTRESOURCEW(IDD_CUSTOM),
+                                pGame->_hWnd,
+                                Custom,
+                                reinterpret_cast<LPARAM>(&customInfo));
+                pGame->_ResetGame(customInfo[0], customInfo[1], customInfo[2], true);
                 break;
             }
 
@@ -399,7 +396,7 @@ INT_PTR About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
         return TRUE;
 
     case WM_COMMAND:
-        if (LOWORD(wParam) == ID_OK || LOWORD(wParam) == IDCANCEL)
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
             EndDialog(hDlg, LOWORD(lParam));
             return TRUE;
@@ -408,26 +405,67 @@ INT_PTR About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
     return FALSE;
 }
 
-RECT CalculateNewWindowSize(Difficulty diff)
+INT_PTR Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    static std::array<int, 3>* pCustomInfo;
+    switch (msg)
+    {
+    case WM_INITDIALOG:
+        pCustomInfo = reinterpret_cast<std::array<int, 3>*>(lParam);
+        return TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hDlg, LOWORD(lParam));
+            return TRUE;
+        }
+        else if (LOWORD(wParam) == IDOK)
+        {
+            std::wstringstream wss;
+            int width = 0, height = 0, mines = 0;
+            wchar_t widthBuffer[4] = { 0 };
+            wchar_t heightBuffer[4] = { 0 };
+            wchar_t minesBuffer[4] = { 0 };
+
+            GetDlgItemTextW(hDlg, IDC_EDIT_WIDTH, widthBuffer, 4);
+            GetDlgItemTextW(hDlg, IDC_EDIT_HEIGHT, heightBuffer, 4);
+            GetDlgItemTextW(hDlg, IDC_EDIT_MINES, minesBuffer, 4);
+            wss << widthBuffer;
+            wss >> width;
+            wss.clear();
+            wss << heightBuffer;
+            wss >> height;
+            wss.clear();
+            wss << minesBuffer;
+            wss >> mines;
+
+            if (width == 0 || height == 0 || mines == 0 || width > 40 || height > 40 || mines > 1000 ||
+                mines > width * height - 1)
+            {
+                MessageBoxW(nullptr, L"Please check your input.", L"Error", MB_OK | MB_ICONEXCLAMATION);
+            }
+            else
+            {
+                (*pCustomInfo)[0] = width;
+                (*pCustomInfo)[1] = height;
+                (*pCustomInfo)[2] = mines;
+                EndDialog(hDlg, LOWORD(lParam));
+            }
+
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+RECT CalculateNewWindowSize(int width, int height)
 {
     RECT rc;
     rc.left = 0;
     rc.top = 0;
-    switch (diff)
-    {
-    case Difficulty::EASY:
-        rc.right = 2 * MARGIN + BLOCK_SIZE * 9;
-        rc.bottom = 2 * MARGIN + BLOCK_SIZE * 9;
-        break;
-    case Difficulty::MEDIUM:
-        rc.right = 2 * MARGIN + BLOCK_SIZE * 16;
-        rc.bottom = 2 * MARGIN + BLOCK_SIZE * 16;
-        break;
-    case Difficulty::HARD:
-        rc.right = 2 * MARGIN + BLOCK_SIZE * 30;
-        rc.bottom = 2 * MARGIN + BLOCK_SIZE * 16;
-        break;
-    }
+    rc.right = 2 * MARGIN + BLOCK_SIZE * width;
+    rc.bottom = 2 * MARGIN + BLOCK_SIZE * height;
     AdjustWindowRect(&rc, WS_CAPTION, TRUE);
     return rc;
 }
