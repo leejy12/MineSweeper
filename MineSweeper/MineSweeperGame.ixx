@@ -384,7 +384,7 @@ public:
     }
 };
 
-INT_PTR About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
@@ -401,7 +401,7 @@ INT_PTR About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
     return FALSE;
 }
 
-INT_PTR Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     static std::array<int, 3>* pCustomInfo;
     switch (msg)
