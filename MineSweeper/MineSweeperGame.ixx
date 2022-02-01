@@ -208,7 +208,7 @@ public:
         UpdateWindow(_hWnd);
     }
 
-    UINT_PTR Run()
+    std::array<int, 3> Run()
     {
         MSG msg;
         while (GetMessageW(&msg, _hWnd, 0, 0) > 0)
@@ -217,7 +217,7 @@ public:
             DispatchMessageW(&msg);
         }
 
-        return msg.wParam;
+        return { _mineField.GetWidth(), _mineField.GetHeight(), _mineField.GetNumMines() };
     }
 
     static LRESULT CALLBACK WndProcInit(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
