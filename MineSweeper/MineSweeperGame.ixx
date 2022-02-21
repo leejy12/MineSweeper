@@ -208,7 +208,7 @@ public:
         UpdateWindow(_hWnd);
     }
 
-    std::array<int, 3> Run()
+    [[nodiscard]] std::array<int, 3> Run()
     {
         MSG msg;
         while (GetMessageW(&msg, _hWnd, 0, 0) > 0)
@@ -457,7 +457,7 @@ INT_PTR CALLBACK Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
     return FALSE;
 }
 
-RECT CalculateNewWindowSize(int width, int height)
+[[nodiscard]] RECT CalculateNewWindowSize(int width, int height)
 {
     RECT rc;
     rc.left = 0;

@@ -106,7 +106,7 @@ public:
         }
     }
 
-    int StepOn(int x, int y)
+    [[nodiscard]] int StepOn(int x, int y)
     {
         if (_cells[x][y].explored || _cells[x][y].hasMine || _cells[x][y].hasFlag)
             return 0;
@@ -157,22 +157,22 @@ public:
             column.resize(newHeight);
     }
 
-    CellInfo GetCellInfo(int x, int y) const
+    [[nodiscard]] CellInfo GetCellInfo(int x, int y) const
     {
         return _cells[x][y];
     }
 
-    int GetWidth() const
+    [[nodiscard]] int GetWidth() const
     {
         return _fieldWidth;
     }
 
-    int GetHeight() const
+    [[nodiscard]] int GetHeight() const
     {
         return _fieldHeight;
     }
 
-    int GetNumMines() const
+    [[nodiscard]] int GetNumMines() const
     {
         return _numMines;
     }
