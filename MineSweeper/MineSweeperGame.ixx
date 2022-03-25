@@ -6,6 +6,8 @@ module;
 #include <string>
 #include <array>
 #include <sstream>
+#include <chrono>
+#include <format>
 
 #include "resource.h"
 
@@ -35,6 +37,8 @@ private:
     MineField _mineField;
     bool _gameStarted, _kaBoom;
     int _numExploredCells;
+
+    std::chrono::time_point<std::chrono::system_clock> _startTimePoint, _endTimePoint;
 
     void _OnPaint(HDC hdc)
     {
@@ -324,6 +328,7 @@ public:
             {
                 mf.PlaceMines(x, y);
                 pGame->_gameStarted = true;
+                pGame->_startTimePoint = std::chrono::system_clock::now();
             }
             else
             {
@@ -352,7 +357,12 @@ public:
 
             if (pGame->_numExploredCells >= mf.GetWidth() * mf.GetHeight() - mf.GetNumMines())
             {
-                MessageBoxW(pGame->_hWnd, L"You win!", L"You win!", MB_OK);
+                pGame->_endTimePoint = std::chrono::system_clock::now();
+                const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(pGame->_endTimePoint -
+                                                                                            pGame->_startTimePoint);
+                const auto gameTime = std::format(L"{:%M:%S}", duration);
+
+                MessageBoxW(pGame->_hWnd, gameTime.c_str(), L"You win!", MB_OK);
                 pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), true);
             }
 
