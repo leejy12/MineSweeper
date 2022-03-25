@@ -21,6 +21,7 @@ constexpr int OFFSET = 1;
 INT_PTR CALLBACK About(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam);
 RECT CalculateNewWindowSize(int width, int height);
+void ForceRedraw(HWND hWnd, BOOL bEraseBackground);
 
 export class MineSweeperGame
 {
@@ -148,14 +149,6 @@ private:
         }
     }
 
-    void _ForceRedraw(HWND hWnd, BOOL bEraseBackground)
-    {
-        RECT rc;
-        GetClientRect(hWnd, &rc);
-        InvalidateRect(hWnd, &rc, bEraseBackground);
-        UpdateWindow(hWnd);
-    }
-
     void _ResetGame(int newWidth, int newHeight, int newMines, bool bEraseBackground)
     {
         _mineField.Reset(newWidth, newHeight, newMines);
@@ -163,7 +156,7 @@ private:
         _numExploredCells = 0;
         const RECT rc = CalculateNewWindowSize(newWidth, newHeight);
         SetWindowPos(_hWnd, NULL, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOMOVE | SWP_SHOWWINDOW);
-        _ForceRedraw(_hWnd, bEraseBackground);
+        ForceRedraw(_hWnd, bEraseBackground);
     }
 
 public:
@@ -343,7 +336,7 @@ public:
                 if (cell.hasMine)
                 {
                     pGame->_kaBoom = true;
-                    pGame->_ForceRedraw(pGame->_hWnd, false);
+                    ForceRedraw(pGame->_hWnd, false);
                     MessageBoxW(hWnd, L"BOOM!", L"BOOM!", MB_OK | MB_ICONEXCLAMATION);
                     pGame->_ResetGame(mf.GetWidth(), mf.GetHeight(), mf.GetNumMines(), false);
                     return 0;
@@ -354,7 +347,7 @@ public:
             pGame->_numExploredCells += newlyExploredCells;
             if (newlyExploredCells > 0)
             {
-                pGame->_ForceRedraw(hWnd, false);
+                ForceRedraw(hWnd, false);
             }
 
             if (pGame->_numExploredCells >= mf.GetWidth() * mf.GetHeight() - mf.GetNumMines())
@@ -375,7 +368,7 @@ public:
                 return 0;
 
             pGame->_mineField.ToggleFlag(x, y);
-            pGame->_ForceRedraw(hWnd, false);
+            ForceRedraw(hWnd, false);
             return 0;
         }
         }
@@ -466,4 +459,12 @@ INT_PTR CALLBACK Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
     rc.bottom = 2 * MARGIN + BLOCK_SIZE * height;
     AdjustWindowRect(&rc, WS_CAPTION, TRUE);
     return rc;
+}
+
+void ForceRedraw(HWND hWnd, BOOL bEraseBackground)
+{
+    RECT rc;
+    GetClientRect(hWnd, &rc);
+    InvalidateRect(hWnd, &rc, bEraseBackground);
+    UpdateWindow(hWnd);
 }
