@@ -432,14 +432,10 @@ INT_PTR CALLBACK Custom(HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam)
             GetDlgItemTextW(hDlg, IDC_EDIT_WIDTH, widthBuffer, 8);
             GetDlgItemTextW(hDlg, IDC_EDIT_HEIGHT, heightBuffer, 8);
             GetDlgItemTextW(hDlg, IDC_EDIT_MINES, minesBuffer, 8);
-            wss << widthBuffer;
-            wss >> width;
-            wss.clear();
-            wss << heightBuffer;
-            wss >> height;
-            wss.clear();
-            wss << minesBuffer;
-            wss >> mines;
+            
+            width = _wtoi(widthBuffer);
+            height = _wtoi(heightBuffer);
+            mines = _wtoi(minesBuffer);
 
             if (width == 0 || height == 0 || mines == 0 || width > 40 || height > 40 || mines > 1000 ||
                 mines > width * height - 1)
