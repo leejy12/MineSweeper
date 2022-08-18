@@ -8,7 +8,7 @@
 
   <Identity
     Name="JYL"
-    Publisher="CN=Junyoung Lee"
+    Publisher="CN=JYL"
     Version="1.0.0.0" />
 
   <Properties>
